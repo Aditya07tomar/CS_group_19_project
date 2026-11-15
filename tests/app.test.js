@@ -1,0 +1,7 @@
+const test=require('node:test');const assert=require('node:assert/strict');const{spawn}=require('node:child_process');
+let child,base='http://127.0.0.1:3000';async function request(path,body){let r=await fetch(base+path,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body)});return{status:r.status,json:await r.json()}}
+test.before(async()=>{child=spawn(process.execPath,['server.js'],{cwd:process.cwd(),stdio:'ignore'});for(let i=0;i<20;i++){try{await fetch(base+'/api/dashboard');return}catch{await new Promise(r=>setTimeout(r,100))}}throw Error('server did not start')});test.after(()=>child.kill());
+test('dashboard exposes five retained variants',async()=>{let r=await fetch(base+'/api/dashboard');assert.equal((await r.json()).variants,5)});
+test('SQL authentication bypass works only on vulnerable route',async()=>{let p={username:"admin' --",password:'anything'},a=await request('/api/sqli/auth/vulnerable',p),b=await request('/api/sqli/auth/secure',p);assert.equal(a.json.authenticated,true);assert.equal(b.json.authenticated,false)});
+test('CSRF synchronizer token rejects absent token',async()=>{let r=await request('/api/csrf/secure/change-name',{displayName:'forged'});assert.equal(r.status,403);assert.equal(r.json.ok,false)});
+test('command route rejects inputs outside its tiny lab allow-list',async()=>{let r=await request('/api/command/inband/vulnerable',{host:'example.invalid'});assert.equal(r.status,400)});

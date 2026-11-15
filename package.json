@@ -1,0 +1,18 @@
+{
+  "name": "cyberlab-web-server-security-playground",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Local-only academic vulnerability and mitigation lab",
+  "scripts": {
+    "setup": "node scripts/setup.js",
+    "cert": "mkdir -p certs && openssl req -x509 -newkey rsa:2048 -nodes -keyout certs/key.pem -out certs/cert.pem -days 30 -subj '/CN=localhost' -addext 'subjectAltName=DNS:localhost,IP:127.0.0.1'",
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "test": "node --test tests/*.test.js"
+  },
+  "dependencies": {
+    "cookie-parser": "^1.4.7",
+    "express": "^5.1.0",
+    "sql.js": "^1.13.0"
+  }
+}

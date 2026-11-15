@@ -1,0 +1,4 @@
+node_modules/
+certs/
+data/
+.DS_Store
